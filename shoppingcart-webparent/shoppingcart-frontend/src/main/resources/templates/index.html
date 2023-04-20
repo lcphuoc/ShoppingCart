@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: page_head('Shopping Cart Client', 'none')" />
+<body>
+<div class="container-fluid">
+	<div th:replace="navigation :: header_menu"></div>
+	<div th:replace="navigation :: search_nav"></div>
+	<div>
+		<h1>Shopping by Categories</h1>
+	</div>
+	
+	<div class="row">
+		<div class="col-3 mt-3 text-center bg-light " th:each="cat : ${listCategories}"><!-- list các categories ko có children -->
+			<div class="border shadow rounded h-100" >
+				<div><img th:src="@{${cat.imagePath}}" width="80" /></div>
+			<div>
+				<a th:href="@{'/c/' + ${cat.alias}}">[[${cat.name}]]</a>
+			</div>
+			</div>
+		</div>
+	</div>
+	
+	<div th:replace="navigation :: footer_menu"></div>
+</div>	
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: page_head('Users - Shopping Cart Admin', 'none')" /> <!-- lấy fragment page_head gán vào vị trí này -->
+
+<body>
+    <div class="full-details">
+      <form enctype="multipart/form-data" th:action="@{/users/saveUploadUsers}" method="post" th:object="${listUser}" >
+         <table class="table table-bordered table-striped table-hover table-responsive-xl">
+            <thead class="thead-dark">
+               <tr>
+                     <th class="hideable-column">
+                     <th th:replace="fragments :: column_link('/users', 'id', 'User ID', 'tag')"></th>
+                     </th>
+                  
+                  <th>Photos</th>
+                  
+                  <th class="hideable-column">
+                     <th th:replace="fragments :: column_link('/users', 'email', 'E-mail', 'tag')"></th>
+                  </th>
+                  
+                  <th th:replace="fragments :: column_link('/users', 'firstName', 'First Name', 'none')"></th>
+                  
+                  <th th:replace="fragments :: column_link('/users', 'lastName', 'Last Name', 'none')"></th>
+                  
+                  <th>Roles</th>
+                  
+                  <th th:replace="fragments :: column_link('/users', 'enabled', 'Enabled', 'none')"></th>
+                  
+                  <th></th>
+               </tr>
+            </thead>
+   
+            <tbody>
+               <tr th:each="user : ${listUsers}"> <!-- listUsers được truyền từ model  -->
+                  <td class="hideable-column">[[${user.id}]]</td> <!-- hiển thị giá trị trên html dùng [[${user.id}]], lưu ý: user.id = user.getId() -->
+                  <input type="hidden" name="userId" th:value="${user.id}" />
+                  <input type="hidden" name="userMail" th:value="${user.email}" />
+                  <td>   
+                     <div>
+                        <input type="hidden" id="'photos_'+${user.id}" name="photos" />
+                        <input type="file"  th:userId="${user.id}" id="fileImage" name="image" accept="image/png, image/jpeg" class="mb-2 fileImage"/> <!-- button để nhấn chọn hình -->
+                        <img th:id="'thumbnail'+${user.id}" alt="Photos preview" th:src="@{${user.photosImagePath}}" class="img-fluid" /> <!-- hình hiển thị -->
+                     </div>
+                  </td>
+                  <td class="hideable-column">[[${user.email}]]</td>
+                  <td>[[${user.firstName}]]</td>
+                  <td>[[${user.lastName}]]</td>
+                  <td>[[${user.roles}]]</td>
+                  <td>
+                     <div th:replace="fragments :: status(${user.enabled}, 'user', '/users/' + ${user.id})"></div> <!-- lấy giá trị của biến dùng ${user.enabled} -->
+                  </td>
+                  <td>
+                     <div th:replace="fragments :: edit('user', '/users/edit/' + ${user.id})"></div>
+                     &nbsp;&nbsp;
+                     <div th:replace="fragments :: delete('user', ${user.id}, '/users/delete/' + ${user.id}, true)"></div>
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+         <div class="text-center">
+            <input type="submit" value="Save" class="btn btn-primary m-3" />
+            <input type="button" value="Cancel" class="btn btn-secondary" id="buttonCancel" />
+         </div>
+      </form>
+    </div>
+
+
+     <div th:replace="modal_fragments :: confirm_modal"></div>
+	
+	<div th:replace="fragments :: footer"></div>
+   <script>
+      function showImage(){
+		showImageThumbnail(this);
+      }
+
+      function showImageThumbnail(fileInput) {
+         var file = fileInput.files[0];
+         var reader = new FileReader();
+         reader.onload = function (e) {
+            $("#thumbnail").attr("src", e.target.result);//gán giá trị của e.target.result vào thuộc tính src -->đây là cách thay đổi hình khi chọn file hình mới
+         };
+
+         reader.readAsDataURL(file);
+      }  
+      
+   </script>
+   <script th:src="@{/js/common_form.js}"></script> <!-- nhúng file common_form.js vào user_form.html =>common_form.js sẽ thấy được các biến và function khai báo trong user_form.html -->
+   <script type="text/javascript">
+      MAX_FILE_SIZE = 102400;
+
+      moduleURL = "[[@{/users}]]";
+
+      function checkEmailUnique(form) {
+         url = "[[@{/users/check_email}]]";
+         userEmail = $("#email").val();//dùng JQuery để lấy ra giá trị của thẻ có id là email
+         userId = $("#id").val();
+
+         csrfValue = $("input[name='_csrf']").val();
+
+         params = { id: userId, email: userEmail, _csrf: csrfValue };//vì đây là method POST nên sẽ truyền data xuống controller bằng body =>tạo đối tượng object params để truyền xuống controller
+
+         $.post(url, params, function (response) {//dùng Ajax JQuery để gọi xuống controller
+            if (response == "OK") {
+               form.submit();//nếu controller trả về "OK" -->ko trùng -->form.submit() sẽ thực hiện action của form -->@PostMapping("/users/save")
+            } else if (response == "Duplicated") {
+               showWarningModal("There is another user having the email " + userEmail);//nếu trùng thì hiện modal báo lỗi
+            } else {
+               showErrorModal("Unknown response from server");//nếu xảy ra lỗi khác thì báo lỗi
+            }
+         }).fail(function () {
+            showErrorModal("Could not connect to the server");//nếu ko gọi xuống được controller thì báo lỗi 
+         });
+
+         return false;
+      }
+   </script>
+
+</body>
+</html>

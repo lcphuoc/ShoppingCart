@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+>
+  
+  <head th:replace="fragments :: page_head('Home - Shopping Cart Admin', 'none')" />
+  <body>
+    <div class="container-fluid">
+      <div th:replace="navigation :: menu"></div>
+
+      <div class="row">
+        <h2 class="col-12 text-center">Shopping Cart Control Panel</h2>
+
+        <p class="ml-2 mr-1">Welcome</p>
+        <a class="mr-1" th:href="@{/account}" sec:authentication="principal.fullname"></a>
+        <!-- prinpical là đối tượng shoppingUserDetails =>có thể gọi đến các phương thức trong đối tượng này -->
+        <span sec:authentication="principal.authorities"></span>
+      </div>
+      <div class="row">
+        <div class="col-1"></div>
+        <div class="col-1">
+          <p  value="0" class="fas fa-chart-line fa-2x text-primary" aria-hidden="true"></p>
+        </div>
+        <div class="col-4">
+          <button value="0" class="lineChart btn btn-primary">View Chart Line Report</button>
+        </div>
+
+        <div class="col-1"></div>
+        <div class="col-1">
+          <p value="0"  class="fas fa-chart-bar fa-2x text-primary" aria-hidden="true"></p>
+        </div>
+        <div class="col-4">
+          <button value="0" class="barChart btn btn-primary">View Chart Bar Report</button>
+        </div>
+
+        <div id="viewOrderOfDay" class="row col-6">
+          <div class="col-2"></div>
+          <div class="col-2">
+            <p value="0"  class="fas fa-money-bill-alt fa-2x text-primary" aria-hidden="true"></p>
+          </div>
+          <div class="col-8">
+            <button value="0" class="ordersOfDay btn btn-primary">View Orders Of The Day</button>
+          </div>
+        </div>
+        
+      </div>
+      <div th:each="order: ${listOrders}" class="row m-1">
+        <input type="hidden" th:value="${order.time_order}" class="order_time" />
+        <input type="hidden" th:value="${order.total}" class="total" />
+      </div>
+      <!--Google map-->
+      <!-- <div
+        id="map-container-google-1"
+        class="z-depth-1-half map-container"
+        style="height: 500px"
+      >
+        <iframe
+          src="https://maps.google.com/maps?q=manhatan&t=&z=13&ie=UTF8&iwloc=&output=embed"
+          frameborder="0"
+          style="border: 0"
+          allowfullscreen
+        ></iframe>
+      </div> -->
+      <div class="w-100" style="display: flex; align-items: center">
+        <div class="col-6">
+          <form id="lineChartDate" class="w-100 d-none" th:action="@{/}">
+            <div class="w-100 row">
+              <p class="text-center col-3 mr-2">
+                From Date
+                <input
+                  style="width: 150px"
+                  type="text"
+                  id="fromDate"
+                  class="datepicker"
+                  name="fromDate"
+                  th:value="${fromDate}"
+                />
+              </p>
+              <p class="text-center col-3 mr-2">
+                To Date
+                <input
+                  style="width: 150px"
+                  type="text"
+                  id="toDate"
+                  class="datepicker"
+                  name="toDate"
+                  th:value="${toDate}"
+                />
+              </p>
+              <!-- <input type="button" readonly value="View Report" class="btn btn-primary m-3" title="View Report"> -->
+              <input
+                type="submit"
+                class="btn btn-info m-3 col-3"
+                value="View Report"
+              />
+            </div>
+          </form>
+        </div>
+
+        <div class="col-6">
+          <form id="barChartDate" class="w-100 d-none" th:action="@{/}">
+            <div class="w-100 row">
+              <p class="text-center col-3 mr-2">
+                From Date
+                <input style="width: 150px" type="text" id="fromDateCol" class="datepicker" name="fromDateCol"
+                  th:value="${fromDateCol}"
+                />
+              </p>
+              <p class="text-center col-3 mr-2">
+                To Date
+                <input style="width: 150px" type="text" id="toDateCol" class="datepicker" name="toDateCol"
+                  th:value="${toDateCol}"
+                />
+              </p>
+              <!-- <input type="button" readonly value="View Report" class="btn btn-primary m-3" title="View Report"> -->
+              <input
+                type="submit"
+                class="btn btn-info m-3 col-3"
+                value="View Report"
+              />
+            </div>
+          </form>  
+        </div>
+      </div>
+
+      <div class="row w-100" style="display: flex; align-items: center">
+        <!-- Google chart -->
+        <div class="col-6 w-100 mr-5">
+          <div
+          id="myChart" class="d-none"
+        ></div>
+        </div>
+        <!-- <div class="col-1"></div> -->
+
+        <script>
+          google.charts.load("current", { packages: ["corechart"] });
+          google.charts.setOnLoadCallback(drawChart);
+
+          function drawChart() {
+            // var temp = "";
+            var time_order = document.getElementsByClassName("order_time");
+            var total = document.getElementsByClassName("total");
+            var arr = new Array();
+            arr.push(["Date", "Total"]);
+            for (var i = 0; i < time_order.length; i++) {
+              arr.push([time_order[i].value, parseFloat(total[i].value)]);
+            }
+            // for(let i = 0; i<time_order.length;i++){
+            //   temp+='["'+time_order.item(i).value+'",'+total.item(i).value+'],';
+            // }
+            // Set Data
+            var data = google.visualization.arrayToDataTable(
+              arr
+              // [60, 8],
+              // [70, 8],
+              // [80, 9],
+              // [90, 9],
+              // [100, 9],
+              // [110, 10],
+              // [120, 11],
+              // [130, 14],
+              // [140, 14],
+              // [150, 15],
+            );
+            // Set Options
+            var options = {
+              width: 600,
+              height: 400,
+              title: "Sale Money",
+              hAxis: { title: "Days Report" },
+              vAxis: { title: "Revenue" },
+              legend: "none",
+            };
+            // Draw
+            var chart = new google.visualization.LineChart(
+              document.getElementById("myChart")
+            );
+            chart.draw(data, options);
+          }
+        </script>
+
+        <div th:each="product: ${listProducts}" class="row">
+          <input type="hidden" th:value="${product.product}" class="product"/>
+          <input type="hidden" th:value="${product.subtotal}" class="subtotal" />
+        </div>
+
+        <!-- Chart2 -->
+        <div class="ml-5 col-6 w-100 text-center">
+          <div id="barChart" class="text-center d-none">
+            <canvas id="myChart2" style="width: 100%; max-width: 600px"></canvas>
+          </div>
+        </div>
+
+        <script>
+          var products = document.getElementsByClassName("product");
+          var subtotals = document.getElementsByClassName("subtotal");
+          var arrProduct = new Array();
+          var arrSubtotal = new Array();
+          for(let i =0;i<products.length;i++){
+          var products = document.getElementsByClassName("product");
+            arrProduct.push(products[i].value);
+            arrSubtotal.push(parseFloat(subtotals[i].value));
+          }
+          var xValues = arrProduct;
+          var yValues = arrSubtotal;
+          var barColors = ["orange", "brown", "blue", "red", "green"];
+
+          new Chart("myChart2", {
+            type: "bar",
+            data: {
+              labels: xValues,
+              datasets: [
+                {
+                  backgroundColor: barColors,
+                  data: yValues,
+                },
+              ],
+            },
+            options: {
+              legend: { display: false },
+              title: {
+                display: true,
+                text: "Top 5 Sellings Products",
+              },
+            },
+          });
+        </script>
+      </div>
+      <div id="haveOrder" class="d-none">
+        <div class="row">
+          <h4 class="col-4">Orders Of The Day</h4>
+          <a class="turn-off fas fa-times-circle fa-2x text-danger text-right col-8"></a>
+        </div>
+        <div>
+          <div class="row">
+            <a class="fas fa-print fa-2x icon-green mr-2 mb-1 col-2" id="batchPrinting" title="Download Templates"></a>
+          </div>
+          <form name="formOder" th:action="@{/orders/batchPrinting}" method="post">
+            <input type="hidden" id="orderIds" name="orderIds">
+            <table id="orderTable" class="table table-bordered table-striped table-hover table-responsive-xl">
+              <thead class="thead-dark">
+                <tr>
+                  <th th:replace="fragments :: column_link('/orders', 'id', 'ID', 'none')" />
+                  <th th:replace="fragments :: column_link('/orders', 'customer', 'Customer', 'none')" />
+                  <th th:replace="fragments :: column_link('/orders', 'total', 'Total', 'none')" />
+                  <th th:replace="fragments :: column_link('/orders', 'orderTime', 'Order Time', 'none')" />
+                  
+                  <th class="hideable-column">
+                    <th th:replace="fragments :: column_link('/orders', 'destination', 'Destination', 'tag')" />
+                  </th>
+                  
+                  <th class="hideable-column">
+                    <th th:replace="fragments :: column_link('/orders', 'paymentMethod', 'Payment Method', 'tag')" />
+                  </th>
+                  <th></th>
+                  <th style="text-align: center;">Tick All<br>
+                    <input type="checkbox" name="tickall" id="tickall">
+                  </th>
+                </tr>								
+              </thead>
+              
+              <tbody>
+                <tr th:each="order : ${listOrderOfDate}">
+                  <td>[[${order.id}]]</td>
+                  <td>
+                    <a class="linkCustomerDetail" th:href="@{'/customers/detail/' + ${order.customer.id}}">
+                    [[${order.customer.fullName}]]
+                    </a>
+                  </td>
+                  <td>
+                    <div th:replace="fragments :: format_currency(${order.total})"></div>
+                  </td>
+                  <td>
+                    <div th:replace="fragments :: format_time(${order.orderTime})"></div>
+                  </td>
+                  <td class="hideable-column">[[${order.destination}]]</td>
+                  <td class="hideable-column">[[${order.paymentMethod}]]</td>
+        
+                  <td>
+                    <a class="fas fa-file-alt fa-2x icon-green linkOrderDetail"
+                      th:href="@{'/orders/detail/' + ${order.id}}"
+                      title="View details of this order"
+                      ></a>					
+                    &nbsp; 
+                    <div th:replace="fragments :: edit('order', '/orders/edit/' + ${order.id})" />
+                    &nbsp; 
+                    <div th:replace="fragments :: delete('order', ${order.id}, '/orders/delete/' + ${order.id}, true)" />
+                    <div>
+                      <a th:href="@{'/order/export/pdf/'+ ${order.id}}" class="pdf fas fa-file-pdf fa-bounce fa-2x icon-dark"></a>
+                    </div>					
+                  </td>
+                  <td style="text-align: center;">
+                    <input th:value="${order.id}" type="checkbox" name="checkBoxDetails" class="checkBoxDetails" th:id="checkBoxDetails_+${order.id}">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </form>
+        </div>
+      </div>
+
+      <div id="noOrder" class="d-none">
+        <div class="row">
+          <h4 class="col-4">Orders Of The Day</h4>
+          <a class="turn-off fas fa-times-circle fa-2x text-danger text-right col-8"></a>
+        </div>
+        <div class="text-center">
+          <img th:src="@{/images/No-Money.jpg}" width="300" height="300">
+          <h3 class="text-danger">You Don't Have Any Orders Today</h3>
+        </div>
+      </div>
+
+      <div th:replace="fragments :: footer"></div>
+    </div>
+
+    <script type="text/javascript">
+      sizeListOrderOfDate = "[[${sizeListOrderOfDate}]]";
+      $(document).ready(function(){
+        $(".turn-off").click(function(){
+          $("#haveOrder").addClass("d-none");
+          $("#noOrder").addClass("d-none");
+          $("#viewOrderOfDay").removeClass("d-none");
+        })
+
+        $(".ordersOfDay").click(function(){
+          if(sizeListOrderOfDate>0){
+            $("#haveOrder").removeClass("d-none");
+          }else{
+            $("#noOrder").removeClass("d-none");
+          }
+          $("#viewOrderOfDay").addClass("d-none");
+        })
+
+        $(".lineChart").click(function(){
+          if($(this).val()==0){
+            $("#lineChartDate").removeClass("d-none");
+            $("#myChart").removeClass("d-none");
+            $(this).text("Hide Line Chart Report");
+            $(this).val(1);
+          }else{
+            $("#lineChartDate").addClass("d-none");
+            $("#myChart").addClass("d-none");
+            $(this).text("View Line Chart Report");
+            $(this).val(0);
+          }
+
+        })
+
+        $(".barChart").click(function(){
+          if($(this).val() == 0){
+            $("#barChartDate").removeClass("d-none");
+            $("#barChart").removeClass("d-none");
+            $(this).text("Hide Bar Chart Report");
+            $(this).val(1);
+          }else{
+            $("#barChartDate").addClass("d-none");
+            $("#barChart").addClass("d-none");
+            $(this).text("View Bar Chart Report");
+            $(this).val(0);
+          }
+        })
+      })
+    </script>
+    <script th:src="@{/js/common_list.js}"></script>
+  </body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<head th:replace="fragments :: page_head(${pageTitle}, 'tag')" />
+</head>
+
+<body>
+<div class="container-fluid">
+	<div th:replace="navigation :: header_menu"></div>
+	<div th:replace="navigation :: search_nav"></div>
+	<div th:replace="breadcrumb :: content"></div>
+
+	<div class="row">
+		<div class="col-sm w-100 h-30">
+			<div class="w-100 h-30">
+				<img id="bigImage" th:src="@{${product.mainImagePath}}" class="img-fluid w-100 h-30" index="0" /><!-- hình to hiển thị ở trên -->
+			</div>
+			
+			<div class="row justify-content-center"><!-- các hình nhỏ hiển thị ở dưới, mainImage ở vị trí đầu tiên, tiếp theo là các extraImages -->
+				<div class="m-2 border border-secondary p-1">
+					<img class="image-thumbnail" th:src="@{${product.mainImagePath}}" height="50" index="0" />
+				</div>
+				
+				<th:block th:each="extraImage, status : ${product.images}">
+					<div class="m-2 border border-secondary p-1">
+						<img class="image-thumbnail" th:src="@{${extraImage.imagePath}}" height="50"
+							th:index="${status.count}" />
+					</div>				
+				</th:block>
+			</div>
+		</div>
+		
+		<div class="col-sm">
+			<div>
+				<h2>[[${product.name}]]</h2>
+			</div>
+			
+			<div>
+				<span>Brand: [[${product.brand.name}]]</span>
+			</div>
+			
+			<div>
+				List Price:
+				<span th:if="${product.discountPercent <= 0}">$ [[${product.price}]]</span>
+				<del th:if="${product.discountPercent > 0}"><span>$ [[${product.price}]]</span></del>
+			</div>
+			
+			<div th:if="${product.discountPercent > 0}">
+				Price: <span style="font-size: larger; color: darkred">$ [[${product.discountPrice}]]</span>
+				([[${#numbers.formatDecimal(product.discountPercent, 1, 'COMMA', 2, 'POINT')}]] % off)
+			</div>
+			
+			<div>&nbsp;</div>
+			<div th:utext="${product.shortDescription}"></div>	
+			<div>
+				<div>
+					<span th:if="${product.inStock}" class="text-success"><b>In Stock</b></span>
+					<span th:unless="${product.inStock}" class="text-danger"><b>Out of Stock</b></span>
+				</div>
+				
+				<th:block th:if="${product.inStock}"> <!-- nếu inStock = false =>hết product =>ko cho thêm vào cart(giỏ hàng) -->
+					<div th:replace="cart/quantity_control :: quantity_control(1, ${product.id})"></div>
+					
+					<div class="mt-3">
+						<input type="button" value="Add to Cart" id="buttonAdd2Cart" class="btn btn-primary" />
+					</div>
+				</th:block>
+			</div>		
+		</div>
+	</div>
+
+	<hr>
+	<form th:if="${isRating}" class="rating_star"  onsubmit="return RatingAndReview(this)">
+		<input type="hidden" id="isRating" name ="isRating">
+		<div class="form-group" id="rating-ability-wrapper">
+			<label class="control-label" for="rating">
+			<span class="field-label-info"><h3>Rating</h3></span>
+			<input type="hidden" id="selected_rating" name="selected_rating" value="" required="required">
+			</label>
+			<h2 class="bold rating-header">
+			<span class="selected-rating">0</span><small> / 5</small>
+			</h2>
+			<button type="button" class="btnrating btn btn-default btn-lg" data-attr="1" id="rating-star-1">
+				<i  id="rating-star1-1" class="fa fa-star" aria-hidden="true"></i>
+			</button>
+			<button type="button" class="btnrating btn btn-default btn-lg" data-attr="2" id="rating-star-2">
+				<i id="rating-star1-2" class="fa fa-star" aria-hidden="true"></i>
+			</button>
+			<button type="button" class="btnrating btn btn-default btn-lg" data-attr="3" id="rating-star-3">
+				<i id="rating-star1-3" class="fa fa-star" aria-hidden="true"></i>
+			</button>
+			<button type="button" class="btnrating btn btn-default btn-lg" data-attr="4" id="rating-star-4">
+				<i id="rating-star1-4" class="fa fa-star" aria-hidden="true"></i>
+			</button>
+			<button type="button" class="btnrating btn btn-default btn-lg" data-attr="5" id="rating-star-5">
+				<i id="rating-star1-5" class="fa fa-star" aria-hidden="true"></i>
+			</button>
+		</div>
+		<hr>
+		<h3>Review</h3>
+		<div class="row ml-1">
+			<textarea class="col-10" name="review" id="review" ></textarea>
+		</div>
+		<input type="submit" class="btn btn-primary m-1 ratingbutton" value="Rating And Review">
+		<script>
+			if($("#isRating").val().trim().length>0){
+				$(".rating_star").hide();
+			}
+		</script>
+	</form>
+
+	<form action="" >
+		<div class="row m-1">
+			<div class="col-12">
+				<h3>PRODUCT REVIEW</h3>
+			</div>
+			<div class="col-12">
+				<h4>Total of [[${countRating}]] Rating</h4>
+			</div>
+			<div class="col-12 mb-3">
+				<div class="row">
+					<div class="col-2">
+						<h2 class="bold rating-header">
+							<span id="totalRating">[[${totalRating}]]</span><small> / 5</small>
+						</h2>
+						<span th:id="totalRating1" class="fa fa-star " th:classappend="${1 <= totalRating} ?checked:''"></span>
+						<span th:id="totalRating2" class="fa fa-star " th:classappend="${2 <= totalRating} ?checked:''"></span>
+						<span th:id="totalRating3" class="fa fa-star " th:classappend="${3 <= totalRating} ?checked:''"></span>
+						<span th:id="totalRating4" class="fa fa-star " th:classappend="${4 <= totalRating} ?checked:''"></span>
+						<span th:id="totalRating5" class="fa fa-star " th:classappend="${5 <= totalRating} ?checked:''"></span>
+					</div>
+					<div class="col-10">
+						<button type="button" class="btnViewRating btn btn-info btn-default btn-lg" value="ALL" data-attr="5" id="ALL">Tất cả
+						</button>
+						<button type="button" class="btnViewRating btn btn-info btn-default btn-lg" value = "5" data-attr="5" id="5Star">5 Star ([[${fiveStar}]])
+						</button>
+						<button type="button" class="btnViewRating btn btn-info btn-default btn-lg" value = "4" data-attr="5" id="4Star">4 Star ([[${fourStar}]])
+						</button>
+						<button type="button" class="btnViewRating btn btn-info btn-default btn-lg" value = "3" data-attr="5" id="3Star">3 Star ([[${threeStar}]])
+						</button>
+						<button type="button" class="btnViewRating btn btn-info btn-default btn-lg" value = "2" data-attr="5" id="2Star">2 Star ([[${twoStar}]])
+						</button>
+						<button type="button" class="btnViewRating btn btn-info btn-default btn-lg" value = "1" data-attr="5" id="1Star">1 Star ([[${oneStar}]])
+						</button>
+					</div>
+				</div>
+			</div>
+			<div  id="RatingBoard" class="col-12" th:classappend="${totalRating}>0 ? '' : d-none" >
+				<th:block  th:each="rating : ${listRatingAndReview}">
+					<div class="row border rounded p-1 RatingBoard">
+						<div class="col-1">
+							<img src="" alt="">
+						</div>
+						<div class="col-11">
+							<div>[[${rating.customer.fullName}]]</div>
+							<div>[[${rating.createdTime}]]</div>
+							<div class="ratingdetails" th:value="${rating.rating}" th:rating = "${rating.rating}" th:ratingID = "${rating.id}">
+								<span th:id="1_+${rating.id}" class="fa fa-star " th:classappend="${1 <= rating.rating} ?checked:''"></span>
+								<span th:id="2_+${rating.id}" class="fa fa-star " th:classappend="${2 <= rating.rating} ?checked:''"></span>
+								<span th:id="3_+${rating.id}" class="fa fa-star " th:classappend="${3 <= rating.rating} ?checked:''"></span>
+								<span th:id="4_+${rating.id}" class="fa fa-star " th:classappend="${4 <= rating.rating} ?checked:''"></span>
+								<span th:id="5_+${rating.id}" class="fa fa-star " th:classappend="${5 <= rating.rating} ?checked:''"></span>
+							</div>
+							<div>[[${rating.review}]]</div>
+						</div>
+					</div>
+					<hr>
+				</th>
+			</div>
+			<div id="noRating" class="row w-100 text-center" th:classappend="${totalRating}==0 ? '' : d-none">
+				<div class="w-100">
+					<img src="https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/eac95a8ac896158642c2761a9e9cd52e.png" alt="">
+					<p>Chưa có đánh giá</p>
+				</div> 
+			</div>
+		</div>
+	</form>
+	
+	<div class="row">
+		<div class="col-12">
+			<div><hr/></div>
+			<div>
+				<h3>Product Description:</h3>
+			</div>
+			<div th:utext="${product.fullDescription}"></div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12">
+			<div><hr/></div>
+			<div>
+				<h3>Product Details:</h3>
+			</div>
+			<th:block th:each="detail : ${product.details}">
+				<div>
+					<b>[[${detail.name}]]</b>:
+					<span>[[${detail.value}]]</span>
+				</div>
+			</th:block>
+		</div>
+	</div>
+	
+	<div th:replace="product/images_carousel :: content"></div>
+	
+	<div th:replace="fragments :: modal_dialog"></div>	
+	
+	<div th:replace="navigation :: footer_menu"></div>
+</div>	
+
+<script type="text/javascript">
+	totalRating = "[[${totalRating}]]";
+	productId = "[[${product.id}]]";//sử dụng trong addToCart()
+	contextPath = "[[@{/}]]";//sử dụng trong addToCart()
+	var csrfHeaderName = "[[${_csrf.headerName}]]";//X-CSRF-TOKEN, nhấn f12 để xem
+	var csrfValue = "[[${_csrf.token}]]";//a11dbd49-400e-481d-b66e-d2c7f66550bc, nhấn f12 để xem
+
+	function RatingAndReview(form) {
+         url = "[[@{/products/saveRatingAndReview}]]";
+         rating = parseInt($(".selected-rating").val());
+         review = $("#review").val();
+
+        //  csrfValue2 = $("input[name='_csrf']").val();
+
+         params = { rating: rating, review: review,productId: productId, _csrf: csrfValue };
+
+         $.post(url, params, function (response) {
+			$(".rating_star").hide();
+			child=`<div class="row border rounded p-1 RatingBoard">
+						<div class="col-12">
+							<div>${response.fullName}</div>
+							<div>${response.createdTime}</div>
+							<div class="ratingdetails" th:value="${response.rating}" th:rating = "${response.rating}" th:ratingID = "${response.id}">
+								<span  id="1_${response.id}" class="fa fa-star RatingNew "></span>
+								<span  id="2_${response.id}" class="fa fa-star RatingNew "></span>
+								<span  id="3_${response.id}" class="fa fa-star RatingNew "></span>
+								<span  id="4_${response.id}" class="fa fa-star RatingNew "></span>
+								<span  id="5_${response.id}" class="fa fa-star RatingNew "></span>
+							</div>
+							<div>${response.review}</div>
+						</div>
+					</div>
+					<hr>
+					`
+			rating = `${response.rating}`;
+			productIdDTO = `${response.id}`;
+			$("#RatingBoard").append(child);
+			for(let i =1;i<=rating;i++){
+				$("#"+i+"_"+productIdDTO).addClass("checked");
+			}
+			$("#5Star").text("5 Star ("+response.fiveStar+")");
+			$("#4Star").text("4 Star ("+response.fourStar+")");
+			$("#3Star").text("3 Star ("+response.threeStar+")");
+			$("#2Star").text("2 Star ("+response.twoStar+")");
+			$("#1Star").text("1 Star ("+response.oneStar+")");
+
+			$("#totalRating").text(response.totalRating);
+			for(let i =1;i<=response.totalRating;i++){
+				$("#totalRating"+i).addClass("checked");
+			}
+			showSuccessModal("You Have Successfully Evaluated, Shopping Team Sincerely Thank You ");
+			$("#noRating").addClass("d-none");
+			$("#RatingBoard").removeClass("d-none");
+         }).fail(function () {
+            showErrorModal("An Error Occurred During Evaluation");
+         });
+
+         return false;
+      }
+
+	$(document).ready(function() {
+		$(".btnViewRating").click(function(){
+			url = "[[@{/products/viewRatingByStar}]]";
+			ratingStar = $(this).val();
+			let check = false;
+			params ={ratingStar: ratingStar,productId: productId,_csrf: csrfValue };
+			$.post(url,params,function(response){
+				$("#RatingBoard").empty();
+				$.each(response,function(index,ratingDTO){
+					check = true;
+					child=`<div class="row border rounded p-1 RatingBoard">
+						<div class="col-12">
+							<div>${ratingDTO.fullName}</div>
+							<div>${ratingDTO.createdTime}</div>
+							<div class="ratingdetails" th:value="${ratingDTO.rating}" th:rating = "${ratingDTO.rating}" th:ratingID = "${ratingDTO.id}">
+								<span  id="1_${ratingDTO.id}" class="fa fa-star RatingNew "></span>
+								<span  id="2_${ratingDTO.id}" class="fa fa-star RatingNew "></span>
+								<span  id="3_${ratingDTO.id}" class="fa fa-star RatingNew "></span>
+								<span  id="4_${ratingDTO.id}" class="fa fa-star RatingNew "></span>
+								<span  id="5_${ratingDTO.id}" class="fa fa-star RatingNew "></span>
+							</div>
+							<div>${ratingDTO.review}</div>
+						</div>
+					</div>
+					<hr>
+					`
+					rating = `${ratingDTO.rating}`;
+					productIdDTO = `${ratingDTO.id}`;
+					$("#RatingBoard").append(child);
+					// $(".RatingNew").each(function(){
+					// 	$(this).addClass("checked");
+					// })
+					for(let i =1;i<=rating;i++){
+						$("#"+i+"_"+productIdDTO).addClass("checked");
+					}
+				})
+				if(check){
+					$("#noRating").addClass("d-none");
+				}else{
+					$("#noRating").removeClass("d-none");
+				}
+			})
+		});
+
+		// $(".ratingdetails").each(function(){
+		// 	rating = $(this).attr("rating");
+		// 	ratingID = $(this).attr("ratingID");
+		// 	for(let i = 1;i<=rating;i++){
+		// 		$("#"+i+"_"+ratingID).addClass("checked");
+		// 	}
+		// });
+
+		// for(let i = 1;i<=totalRating;i++){
+		// 	$("#totalRating"+i).addClass("checked");
+		// }
+
+		$(".btnrating").on('click',(function(e) {
+	
+			var previous_value = $("#selected_rating").val();
+			
+			var selected_value = $(this).attr("data-attr");
+			$("#selected_rating").val(selected_value);
+			
+			$(".selected-rating").empty();
+			$(".selected-rating").html(selected_value);
+			$(".selected-rating").val(selected_value);
+
+			for (i = 1; i <= selected_value; ++i) {
+			$("#rating-star1-"+i).toggleClass('checked');
+			}
+
+			for (ix = 1; ix <= previous_value; ++ix) {
+			$("#rating-star1-"+ix).toggleClass('checked');
+			}
+		}));
+
+		bigImage = $("#bigImage");
+		
+		$(".image-thumbnail").mouseover(function() {//khi hover vào một hình bất kỳ thì set nội dung của thẻ có id là bigImage thành hình đang hover 
+			currentImageSource = $(this).attr("src");//lấy giá trị của thuộc tính src hình đang được hover
+			currentImageIndex = $(this).attr("index");//lấy giá trị của thuộc tính index hình đang được hover
+			
+			bigImage.attr("src", currentImageSource);//gán giá trị của thuộc tính src hình đang được hover cho thuộc tính src của bigImage
+			bigImage.attr("index", currentImageIndex);//gán giá trị của thuộc tính index hình đang được hover cho thuộc tính index của bigImage
+		});
+		
+		bigImage.on("click", function() {
+			$("#carouselModal").modal("show");//khi click vào một hình bất kỳ thì hiển thị modal
+			imageIndex = parseInt(bigImage.attr("index"));//lấy giá trị của thuộc tính index hình đang được click vào
+			$("#carouselExampleIndicators").carousel(imageIndex);//carousel có nhiều hình thì nó sẽ hiển thị tại vị trí hình đang click vào
+		});
+	});
+</script>
+
+<script type="text/javascript" th:src="@{/js/jquery.number.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/common_modal.js}"></script>
+<script type="text/javascript" th:src="@{/js/quantity_control.js}"></script>
+<script type="text/javascript" th:src="@{/js/add_to_cart.js}"></script>
+
+</body>
+</html>

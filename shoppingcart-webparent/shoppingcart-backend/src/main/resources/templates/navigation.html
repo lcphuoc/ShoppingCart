@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+>
+  <body>
+    <div th:fragment="menu">
+      <form
+        th:action="@{/logout}"
+        method="post"
+        th:hidden="true"
+        name="logoutForm"
+      >
+        <input type="submit" />
+      </form>
+
+      <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+        <a class="navbar-brand" th:href="@{/}">
+          <img th:src="@{/images/settings.png}" width="50px" height="50px" />
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#topNavbar"
+        >
+          <!-- less-details sẽ hiện button có 3 dấu gạch, bấm vào sẽ mở ra navigation bar -->
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="row collapse navbar-collapse" id="topNavbar">
+          <!-- data-target="#topNavbar" -->
+          <ul class="navbar-nav w-100">
+            <div class="d-flex w-100">
+              <div class="d-flex p-2">
+                <th:block sec:authorize="hasAuthority('Admin')">
+                  <!-- user có role Admin mới được thấy các links bên trong -->
+                  <li class="nav-item dropdown">
+                    <a
+                      class="nav-link dropdown-toggle"
+                      data-toggle="dropdown"
+                      th:href="@{/users}"
+                      >Users</a
+                    >
+
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" th:href="@{/users/new}"
+                        >Create New</a
+                      >
+                      <a class="dropdown-item" th:href="@{/users}">View All</a>
+                    </div>
+                  </li>
+                </th:block>
+
+                <th:block sec:authorize="hasAnyAuthority('Admin', 'Editor')">
+                  <!-- user có role Admin hoặc Editor mới được thấy các links bên trong -->
+                  <li class="nav-item dropdown">
+                    <a
+                      class="nav-link dropdown-toggle"
+                      data-toggle="dropdown"
+                      th:href="@{/categories}"
+                      >Categories</a
+                    >
+
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" th:href="@{/categories/new}"
+                        >Create New</a
+                      >
+                      <a class="dropdown-item" th:href="@{/categories}"
+                        >View All</a
+                      >
+                    </div>
+                  </li>
+
+                  <li class="nav-item dropdown">
+                    <a
+                      class="nav-link dropdown-toggle"
+                      data-toggle="dropdown"
+                      th:href="@{/brands}"
+                      >Brands</a
+                    >
+
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" th:href="@{/brands/new}"
+                        >Create New</a
+                      >
+                      <a class="dropdown-item" th:href="@{/brands}">View All</a>
+                    </div>
+                  </li>
+                </th:block>
+
+                <th:block
+                  sec:authorize="hasAnyAuthority('Admin', 'Salesperson', 'Editor', 'Shipper')"
+                >
+                  <li class="nav-item dropdown">
+                    <a
+                      class="nav-link dropdown-toggle"
+                      data-toggle="dropdown"
+                      th:href="@{/products}"
+                      >Products</a
+                    >
+
+                    <div class="dropdown-menu">
+                      <a
+                        class="dropdown-item"
+                        th:href="@{/products/new}"
+                        sec:authorize="hasAnyAuthority('Admin', 'Editor')"
+                        >Create New</a
+                      >
+                      <a class="dropdown-item" th:href="@{/products}"
+                        >View All</a
+                      >
+                    </div>
+                  </li>
+                </th:block>
+
+                <th:block
+                  sec:authorize="hasAnyAuthority('Admin', 'Salesperson')"
+                >
+                  <li class="nav-item">
+                    <a class="nav-link" th:href="@{/customers}">Customers</a>
+                  </li>
+                </th:block>
+
+                <th:block
+                  sec:authorize="hasAnyAuthority('Admin', 'Salesperson', 'Shipper')"
+                >
+                  <li class="nav-item">
+                    <a class="nav-link" th:href="@{/orders}">Orders</a>
+                  </li>
+                </th:block>
+              </div>
+
+              <div class="d-flex ml-auto p-2">
+                <li><a th:href="@{/account}"><img class="rounded-circle" th:src="@{${#authentication.principal.photosImagePath}}" width="50px" height="50px"></a></li>
+
+                <li class="nav-item dropdown nav-item-right">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    data-toggle="dropdown"
+                    th:href="@{/account}"
+                    sec:authentication="principal.fullname"
+                  >
+                  </a>
+
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" id="logoutLink" href="">Logout</a>
+                  </div>
+                </li>
+              </div>
+            </div>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </body>
+</html>
