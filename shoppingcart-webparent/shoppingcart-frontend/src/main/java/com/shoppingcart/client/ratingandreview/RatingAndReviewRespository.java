@@ -38,4 +38,7 @@ public interface RatingAndReviewRespository extends CrudRepository<RatingAndRevi
 			+ "limit 1")
 	@Modifying
 	public void updateIsRating(@Param("productId") int productId, @Param("customerId")int customerId);
+	
+	@Query(nativeQuery = true, value = "select ifnull(sum(rating)/count(rating),0) from rating_and_review where product_id = (:productId)")
+	public double totalRatingByProduct(@Param("productId") int productId);
 }

@@ -81,14 +81,6 @@
 			<version>2.0</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.aspose/aspose-barcode -->
-		<dependency>
-			<groupId>com.aspose</groupId>
-			<artifactId>aspose-barcode</artifactId>
-			<version>21.6</version>
-		</dependency>
-
-
 		<!-- https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl -->
 		<dependency>
 			<groupId>net.sourceforge.jexcelapi</groupId>

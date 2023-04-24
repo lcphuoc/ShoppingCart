@@ -2,6 +2,7 @@ package com.shoppingcart.client.product;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.shoppingcart.client.ControllerHelper;
 import com.shoppingcart.client.Utility;
 import com.shoppingcart.client.category.CategoryService;
+import com.shoppingcart.client.order.Oder_Details_Repository;
 import com.shoppingcart.client.ratingandreview.RatingAndReviewRespository;
 import com.shoppingcart.client.ratingandreview.RatingAndReviewService;
 import com.shoppingcart.common.entity.Category;
@@ -32,6 +34,7 @@ public class ProductController {
 	@Autowired private CategoryService categoryService;
 	@Autowired private RatingAndReviewService ratingAndReviewService;
 	@Autowired private ControllerHelper controllerHelper;
+	@Autowired private Oder_Details_Repository oder_Details_Repository;
 	NumberFormat Formatter = new DecimalFormat("#,###,###.#");
 
 	@GetMapping("/c/{category_alias}")
@@ -56,6 +59,13 @@ public class ProductController {
 			if (endCount > pageProducts.getTotalElements()) {
 				endCount = pageProducts.getTotalElements();
 			}
+			for(int i=0;i<listProducts.size();i++) {
+			    int productId = listProducts.get(i).getId();
+			    int countRating = ratingAndReviewService.countAllRating(productId);
+			    listProducts.get(i).setTotalRating(ratingAndReviewService.totalRatingByProduct(productId));
+			    listProducts.get(i).setCountRating(countRating);
+			    listProducts.get(i).setCountBuy(oder_Details_Repository.countByProductId(productId));
+			}
 			
 			model.addAttribute("currentPage", pageNum);
 			model.addAttribute("totalPages", pageProducts.getTotalPages());
@@ -77,7 +87,6 @@ public class ProductController {
 	public String viewProductDetail(@PathVariable("product_alias") String alias, Model model,
 			HttpServletRequest request) {
 		try {
-			double sumRating = 0;
 			int isRating = 0;
 			int countRating = 0;
 			int fiveStar = 0;
@@ -85,14 +94,10 @@ public class ProductController {
 			int threeStar = 0;
 			int twoStar = 0;
 			int oneStar= 0;
-			double totalRating = 0;
 			Product product = productService.getProduct(alias);
 			Customer customer = controllerHelper.getAuthenticatedCustomer(request);
 			List<Category> listCategoryParents = categoryService.getCategoryParents(product.getCategory());//lấy ra tất cả categories cha,ông,...của category hiện tại
 			List<RatingAndReview> listRatingAndReview = ratingAndReviewService.listRatingAndReview(product.getId());
-			for(int i =0;i<listRatingAndReview.size();i++) {
-				sumRating += listRatingAndReview.get(i).getRating();
-			}
 			if(Utility.getEmailOfAuthenticatedCustomer(request) != null) {
 				isRating = ratingAndReviewService.isRating(product.getId(), customer.getId());
 			}
@@ -107,16 +112,13 @@ public class ProductController {
 			}else {
 				model.addAttribute("isRating", false);
 			}
-			if(Double.parseDouble(Formatter.format(sumRating/listRatingAndReview.size()).replaceAll(",", ""))>0) {
-				totalRating = Double.parseDouble(Formatter.format(sumRating/listRatingAndReview.size()).replaceAll(",", ""));
-			}
 			model.addAttribute("countRating", countRating);
 			model.addAttribute("fiveStar", fiveStar);
 			model.addAttribute("fourStar", fourStar);
 			model.addAttribute("threeStar", threeStar);
 			model.addAttribute("twoStar", twoStar);
 			model.addAttribute("oneStar", oneStar);
-			model.addAttribute("totalRating", totalRating);
+			model.addAttribute("totalRating", ratingAndReviewService.totalRatingByProduct(product.getId()));
 			model.addAttribute("listRatingAndReview", listRatingAndReview);
 			model.addAttribute("listCategoryParents", listCategoryParents);
 			model.addAttribute("product", product);
@@ -127,6 +129,18 @@ public class ProductController {
 			return "error/404";
 		}
 	}
+	
+//	public double returnTotalRating(List<RatingAndReview> listRatingAndReview) {
+//		double sumRating = 0;
+//		double totalRating = 0;
+//		for(int i =0;i<listRatingAndReview.size();i++) {
+//			sumRating += listRatingAndReview.get(i).getRating();
+//		}
+//		if(Double.parseDouble(Formatter.format(sumRating/listRatingAndReview.size()).replaceAll(",", ""))>0) {
+//			totalRating = Double.parseDouble(Formatter.format(sumRating/listRatingAndReview.size()).replaceAll(",", ""));
+//		}
+//		return totalRating;
+//	}
 	
 	@GetMapping("/search")
 	public String searchFirstPage(String keyword, Model model) {

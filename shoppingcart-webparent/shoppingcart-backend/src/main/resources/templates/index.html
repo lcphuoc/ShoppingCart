@@ -311,6 +311,24 @@
         </div>
       </div>
 
+      <div th:replace="modal_fragments :: confirm_modal"></div>
+      
+      <div class="modal fade" id="customerDetailModal">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="orderDetailModal">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+          </div>
+        </div>
+      </div>
+
+      <div th:replace="modal_fragments :: modal_dialog"></div>
+
       <div th:replace="fragments :: footer"></div>
     </div>
 
@@ -361,6 +379,40 @@
           }
         })
       })
+    </script>
+
+    <script type="text/javascript">
+      moduleURL = "[[@{/orders}]]";
+
+      $(document).ready(function() {
+        handleLinkViewCustomerDetails();//khi bấm vào xem detail của customer sẽ vào phương thức này
+        handleLinkViewOrderDetails();//khi bấm vào xem detail của order này sẽ vào phương thức này
+        handleLinkDeleteOrder();//khi bấm vào delete order thì sẽ vào phương thức này
+      });
+      
+      function handleLinkViewCustomerDetails() {
+        $(".linkCustomerDetail").on("click", function(e) {
+          e.preventDefault();
+          linkDetailURL = $(this).attr("href");
+          $("#customerDetailModal").modal("show").find(".modal-content").load(linkDetailURL);
+        });			
+      }
+      
+      function handleLinkViewOrderDetails() {
+        $(".linkOrderDetail").on("click", function(e) {
+          e.preventDefault();
+          linkDetailURL = $(this).attr("href");
+          $("#orderDetailModal").modal("show").find(".modal-content").load(linkDetailURL);
+        });		
+      }
+      
+      function handleLinkDeleteOrder() {
+        $(".link-delete").on("click", function(e) {
+          e.preventDefault();
+          showDeleteConfirmModal($(this), 'order');
+        });		
+      }
+      
     </script>
     <script th:src="@{/js/common_list.js}"></script>
   </body>

@@ -48,11 +48,6 @@ public class ProductRestController {
 			sumRating += listRatingAndReview.get(i).getRating();
 		}
 		
-		double totalRating = 0;
-		if(Double.parseDouble(Formatter.format(sumRating/listRatingAndReview.size()).replaceAll(",", ""))>0) {
-			totalRating = Double.parseDouble(Formatter.format(sumRating/listRatingAndReview.size()).replaceAll(",", ""));
-		}
-		
 		int fiveStar = ratingAndReviewRespository.countByRatingAndProductId(5, ratingAndReview.getProduct().getId());
 		int fourStar = ratingAndReviewRespository.countByRatingAndProductId(4, ratingAndReview.getProduct().getId());
 		int threeStar = ratingAndReviewRespository.countByRatingAndProductId(3, ratingAndReview.getProduct().getId());
@@ -63,7 +58,7 @@ public class ProductRestController {
 		RatingAndReviewDTO ratingAndReviewDTO = new RatingAndReviewDTO(ratingAndReview.getId(), 
 				ratingAndReview.getRating(), ratingAndReview.getReview(), 
 				ratingAndReview.getCustomer().getFullName(), ratingAndReview.getCreatedTime()+"", 
-				fiveStar, fourStar, threeStar, twoStar, oneStar, totalRating);
+				fiveStar, fourStar, threeStar, twoStar, oneStar, ratingAndReviewService.totalRatingByProduct(ratingAndReview.getProduct().getId()));
 		return ratingAndReviewDTO;
 	}
 	

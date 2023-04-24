@@ -21,7 +21,7 @@ public class Barcode_Image {
 		code128Bean.generateBarcode(canvas, barcode);
 		canvas.finish();
 		
-		FileOutputStream fileOutputStream = new FileOutputStream("C:\\lcphuoc\\projects\\shoppingcart-project\\shoppingcart-webparent\\shoppingcart-backend\\barcode\\"+image_name);
+		FileOutputStream fileOutputStream = new FileOutputStream("C:\\Users\\PhuocLuu\\Desktop\\ShoppingCart\\ShoppingCart\\shoppingcart-webparent\\shoppingcart-backend\\barcode\\"+image_name);
 		fileOutputStream.write(byteArrayOutputStream.toByteArray());
 		fileOutputStream.flush();
 		fileOutputStream.close();

@@ -12,6 +12,19 @@
 		</div>
 		
 		<div th:replace="product/product_fragment :: product_price"></div>
+		<div class="row">
+			<div class="col-6">
+				<span>Sold [[${product.countBuy}]] </span>
+			</div>
+			<div class="col-6">
+				<span th:id="totalRating1" class="fa fa-star " th:classappend="${1 <= product.totalRating} ?checked:''"></span>
+				<span th:id="totalRating2" class="fa fa-star " th:classappend="${2 <= product.totalRating} ?checked:''"></span>
+				<span th:id="totalRating3" class="fa fa-star " th:classappend="${3 <= product.totalRating} ?checked:''"></span>
+				<span th:id="totalRating4" class="fa fa-star " th:classappend="${4 <= product.totalRating} ?checked:''"></span>
+				<span th:id="totalRating5" class="fa fa-star " th:classappend="${5 <= product.totalRating} ?checked:''"></span>
+				<span class="ml-2">([[${product.countRating}]])</span>
+			</div>
+		</div>
 	</div>
 	
 </div>

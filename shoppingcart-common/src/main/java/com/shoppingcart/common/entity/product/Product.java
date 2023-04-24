@@ -16,8 +16,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import com.shoppingcart.common.entity.product.ProductDetail;
-import com.shoppingcart.common.entity.product.ProductImage;
 import com.shoppingcart.common.entity.Brand;
 import com.shoppingcart.common.entity.Category;
 import com.shoppingcart.common.entity.IdBasedEntity;
@@ -83,11 +81,48 @@ public class Product extends IdBasedEntity {
 		return "/p/" + this.alias + "/";
 	}
 	
+	@Transient
+    private double totalRating;
+	@Transient
+    private int countBuy;
+	@Transient
+    private int countRating;
+	
 	public Product(Integer id) {
 		this.id = id;
 	}
+	
+	@Transient
+	public int getCountBuy() {
+        return countBuy;
+    }
 
-	public Product() {
+	@Transient
+    public void setCountBuy(int countBuy) {
+        this.countBuy = countBuy;
+    }
+
+	@Transient
+    public int getCountRating() {
+        return countRating;
+    }
+
+	@Transient
+    public void setCountRating(int countRating) {
+        this.countRating = countRating;
+    }
+
+    @Transient
+	public double getTotalRating() {
+        return totalRating;
+    }
+
+	@Transient
+    public void setTotalRating(double totalRating) {
+        this.totalRating = totalRating;
+    }
+
+    public Product() {
 	}
 	
 	public Product(String name) {

@@ -29,4 +29,8 @@ public class RatingAndReviewService {
 	public int isRating (int productId, int customerId) {
 		return ratingAndReviewRespository.isRating(productId, customerId);
 	}
+	
+	public double totalRatingByProduct(int productId) {
+	    return ratingAndReviewRespository.totalRatingByProduct(productId);
+	}
 }

@@ -91,7 +91,7 @@ public class OrderService {
 		ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
 		PDFMergerUtility mergePdf = new PDFMergerUtility();
 		Barcode_Image.createImage(order.getId().toString() + ".png", order.getId().toString());
-		String jasperPath = "C:\\Users\\HP\\Desktop\\PROJECT\\ERP_MEDISUN\\ERP_MEDISUN\\WebContent\\reports\\deliveryNote.jasper";
+		String jasperPath = "C:\\Users\\PhuocLuu\\Desktop\\ShoppingCart\\ShoppingCart\\shoppingcart-webparent\\shoppingcart-backend\\pathPrint\\deliveryNote.jasper";
 		HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put("customerName", order.getCustomer().getFullName());
 		parameterMap.put("customerAddress", order.getShippingAddressForPDF());
@@ -106,7 +106,7 @@ public class OrderService {
 		parameterMap.put("orderDate", order.getOrderTime());
 		parameterMap.put("nowDate", this.getDate());
 		parameterMap.put("barcode",
-				"C:\\lcphuoc\\projects\\shoppingcart-project\\shoppingcart-webparent\\shoppingcart-backend\\barcode\\"
+				"C:\\Users\\PhuocLuu\\Desktop\\ShoppingCart\\ShoppingCart\\shoppingcart-webparent\\shoppingcart-backend\\barcode\\"
 						+ order.getId() + ".png");
 
 		// orderDetails
@@ -116,7 +116,7 @@ public class OrderService {
 			OrderDetalsPDF orderDetalsPDF = new OrderDetalsPDF();
 			orderDetalsPDF.setOrdinalNumbers(index);
 			orderDetalsPDF.setProductImage(
-					"C:\\lcphuoc\\projects\\shoppingcart-project\\shoppingcart-webparent\\product-images\\"
+					"C:\\Users\\PhuocLuu\\Desktop\\ShoppingCart\\ShoppingCart\\shoppingcart-webparent\\product-images\\"
 							+ orderDetail.getProduct().getId() + "\\" + orderDetail.getProduct().getMainImage());
 			orderDetalsPDF.setProductName(orderDetail.getProduct().getName());
 			orderDetalsPDF.setUnitPrice("$ " + orderDetail.getUnitPrice());
@@ -137,7 +137,7 @@ public class OrderService {
 //				JRPropertiesUtil.getInstance(context).setProperty("net.sf.jasperreports.default.pdf.encoding", "UTF-8"); 
 //				JRPropertiesUtil.getInstance(context).setProperty("net.sf.jasperreports.default.pdf.embedded", "true");
 				response.setContentType("application/pdf");
-				response.setHeader("Content-Disposition", " inline; filename=UyNhiemChiVCB_" + ".pdf");
+				response.setHeader("Content-Disposition", " inline; filename=deliveryNote"+order.getId()+".pdf");
 				InputStream reportStream = new FileInputStream(jasperPath);
 				JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, parameterMap,
 						new JRBeanCollectionDataSource(listOrderDetails));
@@ -169,7 +169,7 @@ public class OrderService {
 	public void Create_Jasper_Order_Batch(Order order, HttpServletResponse response,
 			ByteArrayOutputStream byteArrayOutputStream) throws IOException {
 		Barcode_Image.createImage(order.getId().toString() + ".png", order.getId().toString());
-		String jasperPath = "C:\\Users\\HP\\Desktop\\PROJECT\\ERP_MEDISUN\\ERP_MEDISUN\\WebContent\\reports\\deliveryNote.jasper";
+		String jasperPath = "C:\\Users\\PhuocLuu\\Desktop\\ShoppingCart\\ShoppingCart\\shoppingcart-webparent\\shoppingcart-backend\\pathPrint\\deliveryNote.jasper";
 		HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put("customerName", order.getCustomer().getFullName());
 		parameterMap.put("customerAddress", order.getShippingAddressForPDF());
@@ -184,7 +184,7 @@ public class OrderService {
 		parameterMap.put("orderDate", order.getOrderTime());
 		parameterMap.put("nowDate", this.getDate());
 		parameterMap.put("barcode",
-				"C:\\lcphuoc\\projects\\shoppingcart-project\\shoppingcart-webparent\\shoppingcart-backend\\barcode\\"
+				"C:\\Users\\PhuocLuu\\Desktop\\ShoppingCart\\ShoppingCart\\shoppingcart-webparent\\shoppingcart-backend\\barcode\\"
 						+ order.getId() + ".png");
 
 		// orderDetails
@@ -194,7 +194,7 @@ public class OrderService {
 			OrderDetalsPDF orderDetalsPDF = new OrderDetalsPDF();
 			orderDetalsPDF.setOrdinalNumbers(index);
 			orderDetalsPDF.setProductImage(
-					"C:\\lcphuoc\\projects\\shoppingcart-project\\shoppingcart-webparent\\product-images\\"
+					"C:\\Users\\PhuocLuu\\Desktop\\ShoppingCart\\ShoppingCart\\shoppingcart-webparent\\product-images\\"
 							+ orderDetail.getProduct().getId() + "\\" + orderDetail.getProduct().getMainImage());
 			orderDetalsPDF.setProductName(orderDetail.getProduct().getName());
 			orderDetalsPDF.setUnitPrice("$ " + orderDetail.getUnitPrice());
@@ -213,7 +213,7 @@ public class OrderService {
 //				JRPropertiesUtil.getInstance(context).setProperty("net.sf.jasperreports.default.pdf.encoding", "UTF-8"); 
 //				JRPropertiesUtil.getInstance(context).setProperty("net.sf.jasperreports.default.pdf.embedded", "true");
 				response.setContentType("application/pdf");
-				response.setHeader("Content-Disposition", " inline; filename=UyNhiemChiVCB_" + ".pdf");
+				response.setHeader("Content-Disposition", " inline; filename=deliveryNote"+order.getId()+".pdf");
 				InputStream reportStream = new FileInputStream(jasperPath);
 				JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, parameterMap,
 						new JRBeanCollectionDataSource(listOrderDetails));
