@@ -18,6 +18,7 @@ import com.shoppingcart.client.ControllerHelper;
 import com.shoppingcart.client.Utility;
 import com.shoppingcart.client.category.CategoryService;
 import com.shoppingcart.client.order.Oder_Details_Repository;
+import com.shoppingcart.client.ratingandreview.LikeRatingAndReviewRepository;
 import com.shoppingcart.client.ratingandreview.RatingAndReviewRespository;
 import com.shoppingcart.client.ratingandreview.RatingAndReviewService;
 import com.shoppingcart.common.entity.Category;
@@ -35,6 +36,7 @@ public class ProductController {
 	@Autowired private RatingAndReviewService ratingAndReviewService;
 	@Autowired private ControllerHelper controllerHelper;
 	@Autowired private Oder_Details_Repository oder_Details_Repository;
+	@Autowired private LikeRatingAndReviewRepository likeRatingAndReviewRepository;
 	NumberFormat Formatter = new DecimalFormat("#,###,###.#");
 
 	@GetMapping("/c/{category_alias}")
@@ -101,6 +103,15 @@ public class ProductController {
 			if(Utility.getEmailOfAuthenticatedCustomer(request) != null) {
 				isRating = ratingAndReviewService.isRating(product.getId(), customer.getId());
 			}
+			for(int i=0;i<listRatingAndReview.size();i++) {
+			    int ratingId = listRatingAndReview.get(i).getId();
+			    listRatingAndReview.get(i).setCountLike(likeRatingAndReviewRepository.countLike(ratingId));
+			    listRatingAndReview.get(i).setCountDislike(likeRatingAndReviewRepository.countDislike(ratingId));
+			    if(Utility.getEmailOfAuthenticatedCustomer(request) != null) {
+			        listRatingAndReview.get(i).setLiked(likeRatingAndReviewRepository.isLikedByCustomer(ratingId, customer.getId(), true));
+	                listRatingAndReview.get(i).setDisLiked(likeRatingAndReviewRepository.isDislikedByCustomer(ratingId, customer.getId(), true));
+	            }
+			}
 			countRating = ratingAndReviewService.countAllRating(product.getId());
 			fiveStar = ratingAndReviewService.countByRating(5,product.getId());
 			fourStar = ratingAndReviewService.countByRating(4,product.getId());
@@ -118,7 +129,7 @@ public class ProductController {
 			model.addAttribute("threeStar", threeStar);
 			model.addAttribute("twoStar", twoStar);
 			model.addAttribute("oneStar", oneStar);
-			model.addAttribute("totalRating", ratingAndReviewService.totalRatingByProduct(product.getId()));
+			model.addAttribute("totalRating", Double.parseDouble(Formatter.format(ratingAndReviewService.totalRatingByProduct(product.getId()))));
 			model.addAttribute("listRatingAndReview", listRatingAndReview);
 			model.addAttribute("listCategoryParents", listCategoryParents);
 			model.addAttribute("product", product);

@@ -60,9 +60,14 @@ public class MainController {
 	}
 	
 	private String getDateTime() {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		Date date = new Date();
 		return dateFormat.format(date);
+	}
+	
+	private String getDateTime(String date) {
+	    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	    return dateFormat.format(date);
 	}
 	
 	public List<reportProductCol> returnListProductsCol(List<String> listCol){

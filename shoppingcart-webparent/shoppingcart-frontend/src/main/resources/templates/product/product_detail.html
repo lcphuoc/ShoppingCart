@@ -148,8 +148,8 @@
 			<div  id="RatingBoard" class="col-12" th:classappend="${totalRating}>0 ? '' : d-none" >
 				<th:block  th:each="rating : ${listRatingAndReview}">
 					<div class="row border rounded p-1 RatingBoard">
-						<div class="col-1">
-							<img src="" alt="">
+						<div class="col-1 text-center">
+							<img th:src="@{/images/149071.png}" height="100" width="100" alt="">
 						</div>
 						<div class="col-11">
 							<div>[[${rating.customer.fullName}]]</div>
@@ -162,6 +162,18 @@
 								<span th:id="5_+${rating.id}" class="fa fa-star " th:classappend="${5 <= rating.rating} ?checked:''"></span>
 							</div>
 							<div>[[${rating.review}]]</div>
+							<div class="row mt-1">
+								<div class="col-1">
+									<span th:if="${rating.liked<=0}" class="likeordislike far fa-thumbs-up fa-lg" th:checked="0" th:liked="0" th:like="1" th:ratingId="${rating.id}" th:id="likeicon_+${rating.id}"></span>
+									<span th:if="${rating.liked>0}" class="likeordislike fas fa-thumbs-up fa-lg liked" th:checked="0" th:liked="1" th:like="1" th:ratingId="${rating.id}" th:id="likeicon_+${rating.id}"></span>
+									<span th:id="like_+${rating.id}">[[${rating.countLike}]]</span>
+								</div>
+								<div class="col-1">
+									<span th:if="${rating.disLiked<=0}" class="likeordislike far fa-thumbs-down fa-flip-horizontal fa-lg" th:checked="0" th:disliked="0" th:like="0" th:ratingId="${rating.id}" th:id="dislikeicon_+${rating.id}"></span>
+									<span th:if="${rating.disLiked>0}" class="likeordislike fas fa-thumbs-down fa-flip-horizontal fa-lg disliked" th:checked="0" th:disliked="1" th:like="0" th:ratingId="${rating.id}" th:id="dislikeicon_+${rating.id}"></span>
+									<span th:id="dislike_+${rating.id}">[[${rating.countDislike}]]</span>
+								</div>	
+							</div>
 						</div>
 					</div>
 					<hr>
@@ -227,7 +239,10 @@
          $.post(url, params, function (response) {
 			$(".rating_star").hide();
 			child=`<div class="row border rounded p-1 RatingBoard">
-						<div class="col-12">
+						<div class="col-1">
+							<img src="../../images/149071.png" height="100" width="100" alt="">
+						</div>
+						<div class="col-11">
 							<div>${response.fullName}</div>
 							<div>${response.createdTime}</div>
 							<div class="ratingdetails" th:value="${response.rating}" th:rating = "${response.rating}" th:ratingID = "${response.id}">
@@ -238,6 +253,16 @@
 								<span  id="5_${response.id}" class="fa fa-star RatingNew "></span>
 							</div>
 							<div>${response.review}</div>
+							<div class="row mt-1">
+								<div class="col-1">
+									<span class="likeordislike far fa-thumbs-up fa-lg" checked="0" liked="0" like="1" ratingId="${response.id}" id="likeicon_${response.id}"></span>
+									<span id="like_${response.id}">${response.countLike}</span>
+								</div>
+								<div class="col-1">
+									<span class="likeordislike far fa-thumbs-down fa-flip-horizontal fa-lg" checked="0" disliked="0" like="0" ratingId="${response.id}" th:id="dislikeicon_${response.id}"></span>
+									<span id="dislike_${response.id}">${response.countDislike}</span>
+								</div>	
+							</div>
 						</div>
 					</div>
 					<hr>
@@ -253,6 +278,8 @@
 			$("#3Star").text("3 Star ("+response.threeStar+")");
 			$("#2Star").text("2 Star ("+response.twoStar+")");
 			$("#1Star").text("1 Star ("+response.oneStar+")");
+			$("#likeicon_"+response.id).addClass("likeordislike");
+			$("#dislikeicon_"+response.id).addClass("likeordislike");
 
 			$("#totalRating").text(response.totalRating);
 			for(let i =1;i<=response.totalRating;i++){
@@ -269,6 +296,55 @@
       }
 
 	$(document).ready(function() {
+		// likeandislike
+		$(".likeordislike").click(function(){
+			url = "[[@{/products/likeOrDislike}]]";
+			likeordislike = $(this).attr("like");
+			ratingId = $(this).attr("ratingId");
+			if(likeordislike==1){
+				likedOrDisliked = $(this).attr("liked");
+				if(likedOrDisliked==0){
+					$("#likeicon_"+ratingId).attr("liked","1");
+				}else{
+					$("#likeicon_"+ratingId).attr("liked","0");
+				}
+			}else{
+				likedOrDisliked = $(this).attr("disliked");
+				if(likedOrDisliked==0){
+					$("#dislikeicon_"+ratingId).attr("disliked","1");
+				}else{
+					$("#dislikeicon_"+ratingId).attr("disliked","0");
+				}
+			}
+			params = {likeordislike: likeordislike,ratingId:ratingId,likedOrDisliked:likedOrDisliked,_csrf: csrfValue}
+			$.post(url,params,function(response){
+				$("#like_"+ratingId).text(response.like);
+				$("#dislike_"+ratingId).text(response.dislike);
+				if(response.comment=="LIKED"){
+					$("#likeicon_"+ratingId).removeClass("far fa-thumbs-up fa-xl");
+					$("#likeicon_"+ratingId).addClass("fas fa-thumbs-up fa-xl liked");
+					$("#dislikeicon_"+ratingId).removeClass("fas fa-thumbs-down fa-flip-horizontal fa-xl disliked");
+					$("#dislikeicon_"+ratingId).addClass("far fa-thumbs-down fa-flip-horizontal fa-xl");
+					$("#dislikeicon_"+ratingId).attr("disliked","0");
+				}else if(response.comment=="DELETELIKED"){
+					$("#likeicon_"+ratingId).removeClass("fas fa-thumbs-up fa-xl liked");
+					$("#likeicon_"+ratingId).addClass("far fa-thumbs-up fa-xl");
+				}else if(response.comment=="DISLIKED"){
+					$("#dislikeicon_"+ratingId).removeClass("far fa-thumbs-down fa-flip-horizontal fa-xl");
+					$("#dislikeicon_"+ratingId).addClass("fas fa-thumbs-down fa-flip-horizontal fa-xl disliked");
+					$("#likeicon_"+ratingId).removeClass("fas fa-thumbs-up fa-xl liked");
+					$("#likeicon_"+ratingId).addClass("far fa-thumbs-up fa-xl");
+					$("#likeicon_"+ratingId).attr("liked","0");
+				}else if(response.comment=="DELETEDISLIKED"){
+					$("#dislikeicon_"+ratingId).removeClass("fas fa-thumbs-down fa-flip-horizontal fa-xl disliked");
+					$("#dislikeicon_"+ratingId).addClass("far fa-thumbs-down fa-flip-horizontal fa-xl");
+				}else{
+					showModalDialog("Shopping Cart", response.comment);
+				}
+			})
+		})
+
+
 		$(".btnViewRating").click(function(){
 			url = "[[@{/products/viewRatingByStar}]]";
 			ratingStar = $(this).val();
@@ -279,7 +355,10 @@
 				$.each(response,function(index,ratingDTO){
 					check = true;
 					child=`<div class="row border rounded p-1 RatingBoard">
-						<div class="col-12">
+						<div class="col-1">
+							<img src="../../images/149071.png" height="100" width="100" alt="">
+						</div>
+						<div class="col-11">
 							<div>${ratingDTO.fullName}</div>
 							<div>${ratingDTO.createdTime}</div>
 							<div class="ratingdetails" th:value="${ratingDTO.rating}" th:rating = "${ratingDTO.rating}" th:ratingID = "${ratingDTO.id}">
@@ -290,19 +369,35 @@
 								<span  id="5_${ratingDTO.id}" class="fa fa-star RatingNew "></span>
 							</div>
 							<div>${ratingDTO.review}</div>
+							<div class="row mt-1">
+								<div class="col-1">
+									<span class="likeordislike far fa-thumbs-up fa-lg" checked="0" liked="0" like="1" ratingId="${ratingDTO.id}" id="likeicon_${ratingDTO.id}"></span>
+									<span id="like_${ratingDTO.id}">${ratingDTO.countLike}</span>
+								</div>
+								<div class="col-1">
+									<span class="likeordislike far fa-thumbs-down fa-flip-horizontal fa-lg" checked="0" disliked="0" like="0" ratingId="${ratingDTO.id}" id="dislikeicon_${ratingDTO.id}"></span>
+									<span id="dislike_${ratingDTO.id}">${ratingDTO.countDislike}</span>
+								</div>	
+							</div>
 						</div>
 					</div>
 					<hr>
 					`
 					rating = `${ratingDTO.rating}`;
+					ratingId = 
 					productIdDTO = `${ratingDTO.id}`;
 					$("#RatingBoard").append(child);
-					// $(".RatingNew").each(function(){
-					// 	$(this).addClass("checked");
-					// })
 					for(let i =1;i<=rating;i++){
 						$("#"+i+"_"+productIdDTO).addClass("checked");
 					}
+					if(ratingDTO.liked>0){
+						$("#likeicon_"+productIdDTO).removeClass("likeordislike far fa-thumbs-up fa-lg");
+						$("#likeicon_"+productIdDTO).addClass("likeordislike fas fa-thumbs-up fa-lg liked");
+					}
+					if(ratingDTO.disliked>0){
+						$("#dislikeicon_"+productIdDTO).removeClass("likeordislike far fa-thumbs-down fa-flip-horizontal fa-lg");
+						$("#dislikeicon_"+productIdDTO).addClass("likeordislike fas fa-thumbs-down fa-flip-horizontal fa-lg disliked");
+					}	
 				})
 				if(check){
 					$("#noRating").addClass("d-none");
@@ -311,18 +406,6 @@
 				}
 			})
 		});
-
-		// $(".ratingdetails").each(function(){
-		// 	rating = $(this).attr("rating");
-		// 	ratingID = $(this).attr("ratingID");
-		// 	for(let i = 1;i<=rating;i++){
-		// 		$("#"+i+"_"+ratingID).addClass("checked");
-		// 	}
-		// });
-
-		// for(let i = 1;i<=totalRating;i++){
-		// 	$("#totalRating"+i).addClass("checked");
-		// }
 
 		$(".btnrating").on('click',(function(e) {
 	

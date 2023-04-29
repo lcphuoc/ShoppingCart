@@ -16,11 +16,17 @@ public class RatingAndReviewDTO {
 	int twoStar;
 	int oneStar;
 	double totalRating;
+	int countLike;
+	int countDislike;
+	int liked;
+	int disliked;
+	
 	
 
 	public RatingAndReviewDTO(int id, int rating, String review, 
 			String  fullName, String createdTime, int fiveStar, 
-			int fourStar, int threeStar, int twoStar, int oneStar, double totalRating) {
+			int fourStar, int threeStar, int twoStar, int oneStar,
+			double totalRating, int countLike, int countDislike) {
 		super();
 		this.id = id;
 		this.rating = rating;
@@ -33,19 +39,71 @@ public class RatingAndReviewDTO {
 		this.twoStar = twoStar;
 		this.oneStar = oneStar;
 		this.totalRating = totalRating;
+		this.countLike = countLike;
+		this.countDislike = countDislike;
 	}
 	
-	public RatingAndReviewDTO(int id, int rating, String review, 
-			String  fullName, String createdTime ) {
+	
+	
+	public int getCountLike() {
+        return countLike;
+    }
+
+    public void setCountLike(int countLike) {
+        this.countLike = countLike;
+    }
+
+    public int getCountDislike() {
+        return countDislike;
+    }
+
+    public void setCountDislike(int countDislike) {
+        this.countDislike = countDislike;
+    }
+
+    public RatingAndReviewDTO(int id, int rating, String review, 
+			String  fullName, String createdTime , int countLike, int countDislike) {
 		super();
 		this.id = id;
 		this.rating = rating;
 		this.review = review;
 		this.fullName = fullName;
 		this.createdTime = createdTime;
+		this.countLike = countLike;
+		this.countDislike = countDislike;
 	}
+    
+    public RatingAndReviewDTO(int id, int rating, String review, 
+            String  fullName, String createdTime , int countLike, int countDislike, int liked, int disliked) {
+        super();
+        this.id = id;
+        this.rating = rating;
+        this.review = review;
+        this.fullName = fullName;
+        this.createdTime = createdTime;
+        this.countLike = countLike;
+        this.countDislike = countDislike;
+        this.liked = liked;
+        this.disliked = disliked;
+    }
 
-	public double getTotalRating() {
+	public int getLiked() {
+        return liked;
+    }
+
+    public void setLiked(int liked) {
+        this.liked = liked;
+    }
+
+    public int getDisliked() {
+        return disliked;
+    }
+
+    public void setDisliked(int disliked) {
+        this.disliked = disliked;
+    }
+
+    public double getTotalRating() {
 		return totalRating;
 	}
 

@@ -26,6 +26,14 @@
 	color: orange;
 }
 
+.liked {
+	color: #0571ed;
+}
+
+.disliked{
+	color: gray;
+}
+
 a {
 	text-decoration: none !important;
   }

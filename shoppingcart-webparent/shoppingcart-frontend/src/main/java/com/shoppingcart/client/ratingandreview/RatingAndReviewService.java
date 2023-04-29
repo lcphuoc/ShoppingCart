@@ -33,4 +33,8 @@ public class RatingAndReviewService {
 	public double totalRatingByProduct(int productId) {
 	    return ratingAndReviewRespository.totalRatingByProduct(productId);
 	}
+	
+	public RatingAndReview findById(int ratingId) {
+	    return ratingAndReviewRespository.findById(ratingId).get();
+	}
 }
