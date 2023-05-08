@@ -34,7 +34,8 @@
 						<th class="hideable-column">
 							<th th:replace="fragments :: column_link('/orders', 'paymentMethod', 'Payment Method', 'tag')" />
 						</th>
-						<th></th>
+						<th>Status</th>
+						<th>Action</th>
 						<th style="text-align: center;">Tick All<br>
 							<input type="checkbox" name="tickall" id="tickall">
 						</th>
@@ -57,7 +58,16 @@
 						</td>
 						<td class="hideable-column">[[${order.destination}]]</td>
 						<td class="hideable-column">[[${order.paymentMethod}]]</td>
-	
+						<td class="hideable-column">[[${order.status}]]
+							<a th:if="${order.status} == 'Order Received'" class="ml-2 fas fa-check-circle fa-2x icon-green changeStatus"
+									th:href="@{/status}" th:title="'change Status' + ${order.id}" th:orderId="${order.id}" th:value="${order.id}"></a>
+							<select th:if="${order.status} == 'Order Received'" th:id="shipper_+${order.id}" class="form-control"
+									style="resize: vertical; height: 50px"><!-- style="resize: vertical có thể kéo dropdown theo chiều dọc -->
+								<th:block th:each="shipper : ${listShipper}">
+									<option th:value="${shipper.id}">[[${shipper.firstName}]]</option>
+								</th:block>
+							</select>	
+						</td>
 						<td>
 							<a class="fas fa-file-alt fa-2x icon-green linkOrderDetail"
 								th:href="@{'/orders/detail/' + ${order.id}}"
@@ -140,6 +150,7 @@
 		handleLinkViewCustomerDetails();//khi bấm vào xem detail của customer sẽ vào phương thức này
 		handleLinkViewOrderDetails();//khi bấm vào xem detail của order này sẽ vào phương thức này
 		handleLinkDeleteOrder();//khi bấm vào delete order thì sẽ vào phương thức này
+		handleLinkChangeStatus();
 	});
 	
 	function handleLinkViewCustomerDetails() {
@@ -156,6 +167,16 @@
 			linkDetailURL = $(this).attr("href");
 			$("#orderDetailModal").modal("show").find(".modal-content").load(linkDetailURL);
 		});		
+	}
+
+	function handleLinkChangeStatus(){
+		$(".changeStatus").click(function(e){
+			e.preventDefault();
+			orderId=$(this).attr("orderId");
+			shipperId = $("#shipper_"+orderId).val();
+			$(this).attr("href",moduleURL+"/changeStatus/"+orderId+"/"+shipperId);
+			showDeleteConfirmModal($(this),'order');
+		})
 	}
 	
 	function handleLinkDeleteOrder() {

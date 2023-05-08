@@ -21,8 +21,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.shoppingcart.admin.user.UserNotFoundException;
+import com.shoppingcart.admin.user.UserRepository;
+import com.shoppingcart.admin.user.UserService;
 import com.shoppingcart.admin.user.export.UserPdfExporter;
 import com.shoppingcart.common.entity.Country;
+import com.shoppingcart.common.entity.ShipperDTO;
 import com.shoppingcart.common.entity.User;
 import com.shoppingcart.common.entity.order.Order;
 import com.shoppingcart.common.entity.order.OrderDetail;
@@ -36,6 +40,10 @@ public class OrderController {
 
 	@Autowired
 	private OrderService orderService;
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private UserService userService;
 
 	@GetMapping("/orders")
 	public String listFirstPage() {
@@ -56,7 +64,9 @@ public class OrderController {
 		}
 
 		String reverseSortDir = sortDir.equals("asc") ? "desc" : "asc";
-
+		
+		List<User> listShipper = userRepository.listShipper();
+		model.addAttribute("listShipper", listShipper);
 		model.addAttribute("currentPage", pageNum);
 		model.addAttribute("totalPages", page.getTotalPages());
 		model.addAttribute("startCount", startCount);
@@ -150,6 +160,20 @@ public class OrderController {
 		byte c[] = byteArrayOutputStream.toByteArray();
 		response.getOutputStream().write(c);
 	}
+	
+	@GetMapping("/orders/changeStatus/{id}/{shipper_id}")
+    public String updateUserEnabledStatus(@PathVariable("id") Integer id, @PathVariable("shipper_id") int  shipperId,
+            RedirectAttributes redirectAttributes, Model model) throws OrderNotFoundException, UserNotFoundException {
+	    Order order = orderService.get(id);
+	    User user = userService.get(shipperId);
+	    order.setShipper(user);
+	    order.setStatus("Order confirmed");
+	    orderService.save(order);
+        String message = "The Order ID " + id + " has been change Status";
+        redirectAttributes.addFlashAttribute("message", message);
+
+        return defaultRedirectURL;
+    }
 
 	@PostMapping("/order/save")
 	public String saveOrder(Order order, HttpServletRequest request, RedirectAttributes ra) {

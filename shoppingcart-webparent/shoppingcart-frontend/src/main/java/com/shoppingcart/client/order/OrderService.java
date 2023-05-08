@@ -38,6 +38,7 @@ public class OrderService {
 		newOrder.setTax(0.0f);
 		newOrder.setTotal(checkoutInfo.getPaymentTotal());
 		newOrder.setPaymentMethod(paymentMethod);
+		newOrder.setStatus("Order Received");
 		
 		newOrder.copyAddressFromCustomer();
 		

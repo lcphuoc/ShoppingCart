@@ -12,11 +12,13 @@ import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.shoppingcart.common.entity.AbstractAddress;
 import com.shoppingcart.common.entity.Customer;
+import com.shoppingcart.common.entity.User;
 
 @Entity
 @Table(name = "orders")
@@ -43,6 +45,12 @@ public class Order extends AbstractAddress {
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<OrderDetail> orderDetails = new HashSet<>();
 	
+	private String status;
+	
+	@OneToOne
+	@JoinColumn(name = "shipper_id")
+	private User shipper;
+	
 	public Order() {
 	}
 	
@@ -54,7 +62,23 @@ public class Order extends AbstractAddress {
 		this.total = total;
 	}
 
-	public String getCountry() {
+	public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public User getShipper() {
+        return shipper;
+    }
+
+    public void setShipper(User shipper) {
+        this.shipper = shipper;
+    }
+
+    public String getCountry() {
 		return country;
 	}
 
